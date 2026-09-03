@@ -1,0 +1,734 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #090909;
+  color: #f5f5f0;
+  font-family: "Inter", sans-serif;
+  overflow-x: hidden;
+}
+
+/* =========================================
+   NOISE
+========================================= */
+
+.noise {
+  position: fixed;
+  inset: 0;
+  opacity: 0.035;
+  pointer-events: none;
+  z-index: 9999;
+
+  background-image:
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.9'/%3E%3C/svg%3E");
+}
+
+/* =========================================
+   HERO
+========================================= */
+
+.hero {
+  min-height: 100vh;
+  position: relative;
+  padding: 28px 4vw;
+  display: flex;
+  flex-direction: column;
+
+  background:
+    radial-gradient(
+      circle at 50% 45%,
+      #1b1b1b 0%,
+      #090909 55%,
+      #050505 100%
+    );
+}
+
+/* =========================================
+   NAVBAR
+========================================= */
+
+.navbar {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+
+  color: #a7a7a7;
+}
+
+.nav-center h2 {
+  color: #fff;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 8px;
+}
+
+.nav-right {
+  text-align: right;
+}
+
+/* =========================================
+   HERO CONTENT
+========================================= */
+
+.hero-content {
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+
+  padding: 80px 0;
+}
+
+.eyebrow {
+  font-family: "DM Mono", monospace;
+
+  font-size: 10px;
+  letter-spacing: 4px;
+
+  color: #888;
+
+  margin-bottom: 28px;
+}
+
+.hero-content h1 {
+  font-size: clamp(70px, 13vw, 190px);
+
+  line-height: 0.82;
+
+  letter-spacing: -8px;
+
+  font-weight: 900;
+
+  margin-bottom: 35px;
+
+  animation: fadeUp 1s ease forwards;
+}
+
+.hero-description {
+  color: #a5a5a5;
+
+  font-size: 15px;
+
+  margin-bottom: 55px;
+
+  letter-spacing: 0.5px;
+}
+
+/* =========================================
+   COUNTDOWN
+========================================= */
+
+.countdown {
+  display: flex;
+
+  border-top: 1px solid #303030;
+  border-bottom: 1px solid #303030;
+
+  margin-bottom: 22px;
+}
+
+.time-box {
+  min-width: 135px;
+
+  padding: 20px 25px;
+
+  border-right: 1px solid #303030;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.time-box:last-child {
+  border-right: none;
+}
+
+.time-box span {
+  font-size: 35px;
+
+  font-weight: 700;
+
+  letter-spacing: -1px;
+}
+
+.time-box small {
+  font-family: "DM Mono", monospace;
+
+  font-size: 8px;
+
+  color: #777;
+
+  letter-spacing: 2px;
+
+  margin-top: 7px;
+}
+
+/* =========================================
+   LAUNCH DATE
+========================================= */
+
+.launch-date {
+  font-family: "DM Mono", monospace;
+
+  font-size: 9px;
+
+  letter-spacing: 2px;
+
+  color: #777;
+
+  margin-bottom: 42px;
+}
+
+/* =========================================
+   EXPLORE BUTTON
+========================================= */
+
+.explore-btn {
+  text-decoration: none;
+
+  color: #fff;
+
+  border: 1px solid #4a4a4a;
+
+  padding: 15px 24px;
+
+  font-family: "DM Mono", monospace;
+
+  font-size: 10px;
+
+  letter-spacing: 2px;
+
+  transition: 0.3s ease;
+}
+
+.explore-btn span {
+  margin-left: 15px;
+
+  font-size: 15px;
+}
+
+.explore-btn:hover {
+  background: #fff;
+
+  color: #000;
+
+  border-color: #fff;
+}
+
+/* =========================================
+   SCROLL INDICATOR
+========================================= */
+
+.scroll-indicator {
+  position: absolute;
+
+  bottom: 25px;
+
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  gap: 10px;
+}
+
+.scroll-indicator span {
+  font-family: "DM Mono", monospace;
+
+  font-size: 8px;
+
+  letter-spacing: 2px;
+
+  color: #555;
+}
+
+.scroll-line {
+  width: 1px;
+
+  height: 35px;
+
+  background: linear-gradient(
+    transparent,
+    #777
+  );
+
+  animation: scrollMove 2s infinite;
+}
+
+/* =========================================
+   GENERAL SECTIONS
+========================================= */
+
+.about,
+.manifesto,
+.final-section {
+  padding: 150px 10vw;
+
+  border-top: 1px solid #222;
+}
+
+.section-label {
+  font-family: "DM Mono", monospace;
+
+  font-size: 10px;
+
+  letter-spacing: 3px;
+
+  color: #777;
+
+  margin-bottom: 45px;
+}
+
+/* =========================================
+   ABOUT
+========================================= */
+
+.about h2,
+.manifesto h2,
+.final-section h2 {
+  font-size: clamp(55px, 9vw, 130px);
+
+  line-height: 0.88;
+
+  letter-spacing: -6px;
+
+  font-weight: 800;
+
+  margin-bottom: 80px;
+}
+
+.about-content {
+  max-width: 750px;
+
+  margin-left: auto;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 28px;
+}
+
+.about-content p {
+  font-size: 20px;
+
+  line-height: 1.6;
+
+  color: #aaa;
+}
+
+.highlight-text {
+  color: #fff !important;
+
+  font-size: 14px !important;
+
+  letter-spacing: 2px;
+
+  font-weight: 600;
+
+  margin-top: 15px;
+}
+
+/* =========================================
+   MANIFESTO
+========================================= */
+
+.manifesto {
+  background: #0d0d0d;
+}
+
+.manifesto-grid {
+  display: grid;
+
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 20px;
+}
+
+.manifesto-grid > div {
+  border-top: 1px solid #333;
+
+  padding-top: 22px;
+
+  min-height: 220px;
+}
+
+.manifesto-grid span {
+  font-family: "DM Mono", monospace;
+
+  color: #666;
+
+  font-size: 11px;
+}
+
+.manifesto-grid h3 {
+  font-size: 22px;
+
+  letter-spacing: 1px;
+
+  margin: 35px 0 15px;
+}
+
+.manifesto-grid p {
+  color: #888;
+
+  line-height: 1.6;
+
+  font-size: 14px;
+
+  max-width: 230px;
+}
+
+/* =========================================
+   FINAL SECTION
+========================================= */
+
+.final-section {
+  min-height: 90vh;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+
+  align-items: flex-start;
+}
+
+.final-section > p:not(.section-label):not(.launch-small) {
+  color: #999;
+
+  font-size: 17px;
+
+  margin-top: -45px;
+
+  margin-bottom: 45px;
+}
+
+/* =========================================
+   EMAIL BOX
+========================================= */
+
+.email-box {
+  display: flex;
+
+  width: min(100%, 550px);
+
+  border-bottom: 1px solid #555;
+}
+
+.email-box input {
+  flex: 1;
+
+  background: transparent;
+
+  border: none;
+
+  outline: none;
+
+  color: #fff;
+
+  padding: 17px 0;
+
+  font-family: "DM Mono", monospace;
+
+  font-size: 11px;
+
+  letter-spacing: 1px;
+}
+
+.email-box input::placeholder {
+  color: #555;
+}
+
+.email-box button {
+  background: transparent;
+
+  border: none;
+
+  color: #fff;
+
+  cursor: pointer;
+
+  font-family: "DM Mono", monospace;
+
+  font-size: 10px;
+
+  letter-spacing: 2px;
+
+  transition: 0.3s;
+}
+
+.email-box button:hover {
+  color: #888;
+}
+
+.launch-small {
+  margin-top: 30px;
+
+  font-family: "DM Mono", monospace;
+
+  font-size: 10px;
+
+  letter-spacing: 2px;
+
+  color: #666;
+}
+
+/* =========================================
+   FOOTER
+========================================= */
+
+footer {
+  padding: 45px 4vw;
+
+  border-top: 1px solid #222;
+
+  display: grid;
+
+  grid-template-columns: 1fr auto 1fr;
+
+  align-items: center;
+
+  gap: 30px;
+}
+
+.footer-logo {
+  font-size: 18px;
+
+  font-weight: 800;
+
+  letter-spacing: 6px;
+}
+
+.footer-links {
+  display: flex;
+
+  gap: 25px;
+}
+
+.footer-links a {
+  color: #777;
+
+  text-decoration: none;
+
+  font-family: "DM Mono", monospace;
+
+  font-size: 9px;
+
+  letter-spacing: 1px;
+
+  transition: 0.3s;
+}
+
+.footer-links a:hover {
+  color: #fff;
+}
+
+.copyright {
+  text-align: right;
+
+  font-family: "DM Mono", monospace;
+
+  font-size: 8px;
+
+  color: #555;
+
+  letter-spacing: 1px;
+}
+
+/* =========================================
+   ANIMATIONS
+========================================= */
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scrollMove {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 768px) {
+
+  .hero {
+    padding: 22px 20px;
+  }
+
+  .navbar {
+    grid-template-columns: 1fr auto;
+  }
+
+  .nav-left {
+    display: none;
+  }
+
+  .nav-center {
+    justify-self: start;
+  }
+
+  .nav-right {
+    font-size: 8px;
+  }
+
+  .hero-content h1 {
+    letter-spacing: -4px;
+  }
+
+  .hero-description {
+    font-size: 13px;
+    max-width: 250px;
+  }
+
+  .countdown {
+    width: 100%;
+
+    display: grid;
+
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .time-box {
+    min-width: unset;
+
+    padding: 18px 10px;
+
+    border-bottom: 1px solid #303030;
+  }
+
+  .time-box:nth-child(2) {
+    border-right: none;
+  }
+
+  .time-box:nth-child(3),
+  .time-box:nth-child(4) {
+    border-bottom: none;
+  }
+
+  .time-box span {
+    font-size: 29px;
+  }
+
+  .launch-date {
+    font-size: 8px;
+
+    line-height: 1.8;
+
+    max-width: 250px;
+  }
+
+  .scroll-indicator {
+    display: none;
+  }
+
+  .about,
+  .manifesto,
+  .final-section {
+    padding: 100px 25px;
+  }
+
+  .about h2,
+  .manifesto h2,
+  .final-section h2 {
+    letter-spacing: -3px;
+
+    margin-bottom: 50px;
+  }
+
+  .about-content {
+    margin-left: 0;
+  }
+
+  .about-content p {
+    font-size: 17px;
+  }
+
+  .manifesto-grid {
+    grid-template-columns: 1fr;
+
+    gap: 35px;
+  }
+
+  .manifesto-grid > div {
+    min-height: auto;
+
+    padding-bottom: 15px;
+  }
+
+  .final-section {
+    min-height: 75vh;
+  }
+
+  .email-box {
+    flex-direction: column;
+
+    gap: 15px;
+
+    padding-bottom: 15px;
+  }
+
+  .email-box button {
+    text-align: left;
+  }
+
+  footer {
+    grid-template-columns: 1fr;
+
+    padding: 40px 25px;
+
+    gap: 25px;
+  }
+
+  .footer-links {
+    flex-wrap: wrap;
+  }
+
+  .copyright {
+    text-align: left;
+  }
+}
