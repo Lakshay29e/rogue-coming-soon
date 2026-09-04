@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
-import { Resend } from "resend";
+import { BrevoClient } from "@getbrevo/brevo";
 
 dotenv.config();
 
@@ -17,16 +17,19 @@ app.use(
   cors({
     origin: "*",
     methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
 app.use(express.json());
 
 /* =========================
-   RESEND CONFIGURATION
+   BREVO EMAIL CONFIG
 ========================= */
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const brevo = new BrevoClient({
+  apiKey: process.env.BREVO_API_KEY,
+});
 
 /* =========================
    MONGODB CONNECTION
@@ -38,10 +41,7 @@ mongoose
     console.log("✅ MongoDB Connected Successfully!");
   })
   .catch((error) => {
-    console.error(
-      "❌ MongoDB Connection Error:",
-      error.message
-    );
+    console.error("❌ MongoDB Connection Error:", error.message);
   });
 
 /* =========================
@@ -172,8 +172,7 @@ app.post("/api/subscribe", async (req, res) => {
 
     const cleanEmail = email.toLowerCase().trim();
 
-    const emailRegex =
-      /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailRegex.test(cleanEmail)) {
       return res.status(400).json({
@@ -184,10 +183,9 @@ app.post("/api/subscribe", async (req, res) => {
 
     /* CHECK DUPLICATE */
 
-    const existingSubscriber =
-      await Subscriber.findOne({
-        email: cleanEmail,
-      });
+    const existingSubscriber = await Subscriber.findOne({
+      email: cleanEmail,
+    });
 
     if (existingSubscriber) {
       return res.status(409).json({
@@ -207,96 +205,120 @@ app.post("/api/subscribe", async (req, res) => {
       `📩 New ROGUE Subscriber: ${subscriber.email}`
     );
 
-    /* ⚡ INSTANT RESPONSE */
+    /* INSTANT RESPONSE */
 
     res.status(201).json({
       success: true,
       message: "Welcome to ROGUE",
     });
 
-    /* =========================
-       SEND EMAIL VIA RESEND
-       Runs after instant response
-    ========================= */
+    /* EMAIL IN BACKGROUND */
 
-    resend.emails
-      .send({
-        from: "ROGUE — NEVER MEANT TO FIT IN <onboarding@resend.dev>",
-        to: cleanEmail,
+    brevo.transactionalEmails
+      .sendTransacEmail({
+        sender: {
+          name: "ROGUE — NEVER MEANT TO FIT IN",
+          email: process.env.SENDER_EMAIL,
+        },
+
+        to: [
+          {
+            email: cleanEmail,
+          },
+        ],
+
         subject: "YOU'RE IN. | ROGUE",
 
-        html: `
-          <div style="background:#050505;padding:50px 20px;font-family:Arial,Helvetica,sans-serif;color:#ffffff;">
-            
-            <div style="max-width:600px;margin:auto;background:#090909;border:1px solid #222;text-align:center;">
-              
-              <div style="padding:45px 25px 30px;">
-                
-                <h1 style="margin:0;font-size:38px;letter-spacing:12px;font-weight:700;color:#f2f2f2;">
-                  ROGUE
-                </h1>
+        htmlContent: `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="UTF-8">
+          </head>
 
-                <p style="margin:15px 0 0;font-size:10px;letter-spacing:5px;color:#777;">
-                  NEVER MEANT TO FIT IN.
-                </p>
+          <body style="margin:0;padding:0;background:#050505;font-family:Arial,Helvetica,sans-serif;color:#ffffff;">
 
-              </div>
+            <div style="background:#050505;padding:50px 20px;">
 
-              <div style="border-top:1px solid #222;margin:0 35px;"></div>
+              <div style="max-width:600px;margin:auto;background:#090909;border:1px solid #222;text-align:center;">
 
-              <div style="padding:45px 30px;">
-                
-                <p style="font-size:10px;letter-spacing:4px;color:#777;margin:0 0 18px;">
-                  ACCESS GRANTED
-                </p>
+                <div style="padding:45px 25px 30px;">
 
-                <h2 style="margin:0;font-size:32px;letter-spacing:3px;color:#ffffff;">
-                  YOU'RE IN.
-                </h2>
+                  <h1 style="margin:0;font-size:38px;letter-spacing:12px;font-weight:700;color:#f2f2f2;">
+                    ROGUE
+                  </h1>
 
-                <p style="margin:30px auto;color:#aaa;font-size:15px;line-height:1.8;">
-                  Welcome to ROGUE.
-                  <br />
-                  You've officially secured your place on the waitlist.
-                </p>
+                  <p style="margin:15px 0 0;font-size:10px;letter-spacing:4px;color:#777;">
+                    NEVER MEANT TO FIT IN.
+                  </p>
 
-                <div style="border-top:1px solid #222;margin:35px 0;"></div>
+                </div>
 
-                <p style="color:#666;font-size:11px;letter-spacing:2px;line-height:1.8;">
-                  THE FIRST DROP IS COMING.
-                  <br />
-                  STAY READY.
-                </p>
+                <div style="border-top:1px solid #222;margin:0 35px;"></div>
 
-              </div>
+                <div style="padding:45px 30px;">
 
-              <div style="border-top:1px solid #222;padding:22px;">
-                <p style="margin:0;color:#555;font-size:9px;letter-spacing:3px;">
-                  ROGUE © 2026
-                </p>
+                  <p style="font-size:10px;letter-spacing:4px;color:#777;margin:0 0 18px;">
+                    ACCESS GRANTED
+                  </p>
+
+                  <h2 style="margin:0;font-size:32px;letter-spacing:3px;color:#ffffff;">
+                    YOU'RE IN.
+                  </h2>
+
+                  <p style="margin:30px auto;color:#aaa;font-size:15px;line-height:1.8;">
+                    Welcome to ROGUE.
+                    <br><br>
+                    You've officially secured your place on the waitlist.
+                  </p>
+
+                  <div style="border-top:1px solid #222;margin:35px 0;"></div>
+
+                  <p style="color:#666;font-size:11px;letter-spacing:2px;line-height:1.8;">
+                    THE FIRST DROP IS COMING.
+                    <br>
+                    STAY READY.
+                  </p>
+
+                </div>
+
+                <div style="border-top:1px solid #222;padding:22px;">
+
+                  <p style="margin:0;color:#555;font-size:9px;letter-spacing:3px;">
+                    ROGUE © 2026
+                  </p>
+
+                </div>
+
               </div>
 
             </div>
 
-          </div>
+          </body>
+          </html>
         `,
       })
-      .then((data) => {
+      .then((result) => {
         console.log(
-          `✅ Confirmation email sent to ${cleanEmail}`
+          "✅ Confirmation email sent!"
         );
-        console.log("Resend Email ID:", data.data?.id);
+
+        console.log(
+          "Brevo Message ID:",
+          result.messageId
+        );
       })
       .catch((emailError) => {
         console.error(
-          "❌ Resend Email Error:",
-          emailError
+          "❌ Brevo Email Error:",
+          emailError.message || emailError
         );
       });
 
     return;
 
   } catch (error) {
+
     console.error(
       "❌ Subscribe Error:",
       error.message
@@ -321,10 +343,9 @@ app.get(
   verifyToken,
   async (req, res) => {
     try {
-      const subscribers =
-        await Subscriber.find().sort({
-          subscribedAt: -1,
-        });
+      const subscribers = await Subscriber.find().sort({
+        subscribedAt: -1,
+      });
 
       return res.json({
         success: true,
@@ -333,6 +354,7 @@ app.get(
       });
 
     } catch (error) {
+
       console.error(
         "Subscriber Fetch Error:",
         error.message
@@ -340,8 +362,7 @@ app.get(
 
       return res.status(500).json({
         success: false,
-        message:
-          "Failed to fetch subscribers",
+        message: "Failed to fetch subscribers",
       });
     }
   }
@@ -354,7 +375,5 @@ app.get(
 const PORT = process.env.PORT || 5002;
 
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(
-    `🚀 Server running on port ${PORT}`
-  );
+  console.log(`🚀 Server running on port ${PORT}`);
 });
