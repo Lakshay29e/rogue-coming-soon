@@ -68,10 +68,7 @@ const subscriberSchema = new mongoose.Schema(
   }
 );
 
-const Subscriber = mongoose.model(
-  "Subscriber",
-  subscriberSchema
-);
+const Subscriber = mongoose.model("Subscriber", subscriberSchema);
 
 /* =========================
    AUTH MIDDLEWARE
@@ -140,13 +137,9 @@ app.post("/api/admin/login", (req, res) => {
   }
 
   const token = jwt.sign(
-    {
-      admin: true,
-    },
+    { admin: true },
     process.env.JWT_SECRET,
-    {
-      expiresIn: "7d",
-    }
+    { expiresIn: "7d" }
   );
 
   return res.status(200).json({
@@ -201,13 +194,9 @@ app.post("/api/subscribe", async (req, res) => {
       email: cleanEmail,
     });
 
-    console.log(
-      `📩 New ROGUE Subscriber: ${subscriber.email}`
-    );
+    console.log(`📩 New ROGUE Subscriber: ${subscriber.email}`);
 
-    /* =========================
-       INSTANT RESPONSE
-    ========================= */
+    /* INSTANT RESPONSE */
 
     res.status(201).json({
       success: true,
@@ -240,9 +229,18 @@ app.post("/api/subscribe", async (req, res) => {
   <meta charset="UTF-8">
 </head>
 
-<body style="margin:0;padding:0;background:#050505;font-family:Arial,Helvetica,sans-serif;color:#ffffff;">
+<body style="
+  margin:0;
+  padding:0;
+  background:#050505;
+">
 
-  <div style="background:#050505;padding:50px 20px;">
+  <div style="
+    background:#050505;
+    padding:50px 20px;
+    font-family:Arial, Helvetica, sans-serif;
+    color:#ffffff;
+  ">
 
     <div style="
       max-width:600px;
@@ -252,15 +250,17 @@ app.post("/api/subscribe", async (req, res) => {
       text-align:center;
     ">
 
-      <!-- LOGO -->
+      <!-- BRAND -->
 
-      <div style="padding:45px 25px 30px;">
+      <div style="
+        padding:45px 25px 30px;
+      ">
 
         <img
           src="https://rogueclothing.vercel.app/ROGUE.jpg"
           alt="ROGUE"
           style="
-            width:140px;
+            width:145px;
             max-width:80%;
             height:auto;
             display:block;
@@ -270,7 +270,9 @@ app.post("/api/subscribe", async (req, res) => {
 
         <p style="
           margin:0;
+          font-family:Arial, Helvetica, sans-serif;
           font-size:10px;
+          font-weight:400;
           letter-spacing:4px;
           color:#777;
         ">
@@ -284,32 +286,47 @@ app.post("/api/subscribe", async (req, res) => {
         margin:0 35px;
       "></div>
 
+
       <!-- MAIN CONTENT -->
 
-      <div style="padding:45px 30px;">
+      <div style="
+        padding:50px 30px 45px;
+      ">
 
         <p style="
+          margin:0 0 22px;
+          font-family:Arial, Helvetica, sans-serif;
           font-size:10px;
+          font-weight:400;
           letter-spacing:4px;
           color:#777;
-          margin:0 0 18px;
         ">
           ACCESS GRANTED
         </p>
 
+
+        <!-- PREMIUM HEADLINE -->
+
         <h2 style="
           margin:0;
-          font-size:32px;
-          letter-spacing:3px;
+          font-family:Georgia, 'Times New Roman', serif;
+          font-size:46px;
+          font-weight:400;
+          letter-spacing:-1px;
+          line-height:1;
           color:#ffffff;
         ">
           YOU'RE IN.
         </h2>
 
+
         <p style="
-          margin:30px auto;
-          color:#aaa;
+          max-width:420px;
+          margin:32px auto 0;
+          font-family:Arial, Helvetica, sans-serif;
+          color:#999;
           font-size:15px;
+          font-weight:400;
           line-height:1.8;
         ">
           Welcome to ROGUE.
@@ -319,14 +336,17 @@ app.post("/api/subscribe", async (req, res) => {
 
         <div style="
           border-top:1px solid #222;
-          margin:35px 0;
+          margin:38px 0;
         "></div>
 
         <p style="
+          margin:0;
+          font-family:Arial, Helvetica, sans-serif;
           color:#666;
-          font-size:11px;
-          letter-spacing:2px;
-          line-height:1.8;
+          font-size:10px;
+          font-weight:400;
+          letter-spacing:2.5px;
+          line-height:2;
         ">
           THE FIRST DROP IS COMING.
           <br>
@@ -334,6 +354,7 @@ app.post("/api/subscribe", async (req, res) => {
         </p>
 
       </div>
+
 
       <!-- FOOTER -->
 
@@ -344,6 +365,7 @@ app.post("/api/subscribe", async (req, res) => {
 
         <p style="
           margin:0;
+          font-family:Arial, Helvetica, sans-serif;
           color:#555;
           font-size:9px;
           letter-spacing:3px;
@@ -361,12 +383,10 @@ app.post("/api/subscribe", async (req, res) => {
 </html>
         `,
       })
-
       .then((result) => {
         console.log("✅ Confirmation email sent!");
         console.log("Brevo Message ID:", result.messageId);
       })
-
       .catch((emailError) => {
         console.error(
           "❌ Brevo Email Error:",
@@ -377,11 +397,7 @@ app.post("/api/subscribe", async (req, res) => {
     return;
 
   } catch (error) {
-
-    console.error(
-      "❌ Subscribe Error:",
-      error.message
-    );
+    console.error("❌ Subscribe Error:", error.message);
 
     if (!res.headersSent) {
       return res.status(500).json({
@@ -394,6 +410,7 @@ app.post("/api/subscribe", async (req, res) => {
 
 /* =========================
    GET ALL SUBSCRIBERS
+   PROTECTED
 ========================= */
 
 app.get(
@@ -412,7 +429,6 @@ app.get(
       });
 
     } catch (error) {
-
       console.error(
         "Subscriber Fetch Error:",
         error.message
