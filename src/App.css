@@ -603,7 +603,7 @@ input {
 }
 
 .statement-section h2 {
-  font-size: clamp(65px, 10vw, 160px);
+  font-size: clamp(65px, 10vw, 100px);
 
   line-height: 0.82;
 
