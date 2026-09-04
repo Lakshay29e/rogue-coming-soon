@@ -2,8 +2,8 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
-import nodemailer from "nodemailer";
 import jwt from "jsonwebtoken";
+import { Resend } from "resend";
 
 dotenv.config();
 
@@ -23,30 +23,10 @@ app.use(
 app.use(express.json());
 
 /* =========================
-   EMAIL CONFIGURATION
-   IPV4 + PORT 587
+   RESEND CONFIGURATION
 ========================= */
 
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-
-  family: 4,
-
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-
-  tls: {
-    rejectUnauthorized: false,
-  },
-
-  connectionTimeout: 15000,
-  greetingTimeout: 15000,
-  socketTimeout: 20000,
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 /* =========================
    MONGODB CONNECTION
@@ -140,7 +120,6 @@ app.get("/", (req, res) => {
 
 /* =========================
    ADMIN LOGIN
-   PASSWORD ONLY
 ========================= */
 
 app.post("/api/admin/login", (req, res) => {
@@ -228,23 +207,21 @@ app.post("/api/subscribe", async (req, res) => {
       `📩 New ROGUE Subscriber: ${subscriber.email}`
     );
 
-    /*
-      ⚡ INSTANT RESPONSE
-      Popup immediately show hoga
-    */
+    /* ⚡ INSTANT RESPONSE */
 
     res.status(201).json({
       success: true,
       message: "Welcome to ROGUE",
     });
 
-    /*
-      📧 EMAIL IN BACKGROUND
-    */
+    /* =========================
+       SEND EMAIL VIA RESEND
+       Runs after instant response
+    ========================= */
 
-    transporter
-      .sendMail({
-        from: `"ROGUE" <${process.env.EMAIL_USER}>`,
+    resend.emails
+      .send({
+        from: "ROGUE — NEVER MEANT TO FIT IN <onboarding@resend.dev>",
         to: cleanEmail,
         subject: "YOU'RE IN. | ROGUE",
 
@@ -252,7 +229,7 @@ app.post("/api/subscribe", async (req, res) => {
           <div style="background:#050505;padding:50px 20px;font-family:Arial,Helvetica,sans-serif;color:#ffffff;">
             
             <div style="max-width:600px;margin:auto;background:#090909;border:1px solid #222;text-align:center;">
-
+              
               <div style="padding:45px 25px 30px;">
                 
                 <h1 style="margin:0;font-size:38px;letter-spacing:12px;font-weight:700;color:#f2f2f2;">
@@ -268,7 +245,7 @@ app.post("/api/subscribe", async (req, res) => {
               <div style="border-top:1px solid #222;margin:0 35px;"></div>
 
               <div style="padding:45px 30px;">
-
+                
                 <p style="font-size:10px;letter-spacing:4px;color:#777;margin:0 0 18px;">
                   ACCESS GRANTED
                 </p>
@@ -304,15 +281,16 @@ app.post("/api/subscribe", async (req, res) => {
           </div>
         `,
       })
-      .then(() => {
+      .then((data) => {
         console.log(
           `✅ Confirmation email sent to ${cleanEmail}`
         );
+        console.log("Resend Email ID:", data.data?.id);
       })
       .catch((emailError) => {
         console.error(
-          "❌ Email sending failed:",
-          emailError.message
+          "❌ Resend Email Error:",
+          emailError
         );
       });
 
