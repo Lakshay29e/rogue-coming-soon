@@ -9,7 +9,17 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors());
+/* =========================
+   MIDDLEWARE
+========================= */
+
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST"],
+  })
+);
+
 app.use(express.json());
 
 /* =========================
@@ -74,38 +84,29 @@ const Subscriber = mongoose.model(
    AUTH MIDDLEWARE
 ========================= */
 
-const authenticateAdmin = (req, res, next) => {
+const verifyToken = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader) {
+    return res.status(401).json({
+      success: false,
+      message: "Unauthorized",
+    });
+  }
+
+  const token = authHeader.split(" ")[1];
+
   try {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader) {
-      return res.status(401).json({
-        success: false,
-        message: "Access denied. No token provided.",
-      });
-    }
-
-    const token = authHeader.split(" ")[1];
-
-    if (!token) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid authentication token.",
-      });
-    }
-
-    const decoded = jwt.verify(
+    jwt.verify(
       token,
       process.env.JWT_SECRET
     );
-
-    req.admin = decoded;
 
     next();
   } catch (error) {
     return res.status(401).json({
       success: false,
-      message: "Invalid or expired token.",
+      message: "Invalid token",
     });
   }
 };
@@ -126,51 +127,33 @@ app.get("/", (req, res) => {
 ========================= */
 
 app.post("/api/admin/login", (req, res) => {
-  try {
-    const { password } = req.body;
+  const { username, password } = req.body;
 
-    if (!password) {
-      return res.status(400).json({
-        success: false,
-        message: "Password is required.",
-      });
-    }
-
-    if (
-      password !== process.env.ADMIN_PASSWORD
-    ) {
-      return res.status(401).json({
-        success: false,
-        message: "Incorrect password.",
-      });
-    }
-
-    const token = jwt.sign(
-      {
-        role: "admin",
-      },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "24h",
-      }
-    );
-
-    return res.status(200).json({
-      success: true,
-      message: "Admin login successful.",
-      token,
-    });
-  } catch (error) {
-    console.error(
-      "Admin Login Error:",
-      error.message
-    );
-
-    return res.status(500).json({
+  if (
+    username !== process.env.ADMIN_USERNAME ||
+    password !== process.env.ADMIN_PASSWORD
+  ) {
+    return res.status(401).json({
       success: false,
-      message: "Login failed.",
+      message: "Invalid credentials",
     });
   }
+
+  const token = jwt.sign(
+    {
+      admin: true,
+      username,
+    },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: "7d",
+    }
+  );
+
+  return res.json({
+    success: true,
+    token,
+  });
 });
 
 /* =========================
@@ -239,110 +222,125 @@ app.post("/api/subscribe", async (req, res) => {
 
         to: cleanEmail,
 
-        subject: "YOU'RE IN. — ROGUE",
+        subject: "Welcome to the ROGUE Waitlist.",
 
         html: `
+        <div style="
+          background:#050505;
+          color:#ffffff;
+          padding:50px 20px;
+          font-family:Arial,Helvetica,sans-serif;
+          text-align:center;
+        ">
+
           <div style="
-            background:#050505;
-            color:#ffffff;
-            padding:60px 25px;
-            font-family:Arial, Helvetica, sans-serif;
-            text-align:center;
+            max-width:600px;
+            margin:auto;
+            border:1px solid #222;
+            background:#090909;
           ">
 
             <div style="
-              max-width:600px;
-              margin:auto;
-              border:1px solid #222;
-              padding:50px 30px;
-              background:#080808;
+              padding:45px 25px 30px;
             ">
 
-              <img
-                src="https://rogue-coming-soon.vercel.app/ROGUE.png"
-                alt="ROGUE"
-                style="
-                  width:180px;
-                  max-width:80%;
-                  margin-bottom:35px;
-                "
-              />
-
-              <p style="
-                letter-spacing:4px;
-                font-size:10px;
-                color:#777;
-                margin-bottom:25px;
-              ">
-                ACCESS GRANTED
-              </p>
-
               <h1 style="
-                font-size:42px;
+                margin:0;
+                font-size:38px;
+                letter-spacing:12px;
                 font-weight:700;
-                letter-spacing:2px;
-                margin:0 0 25px;
-                line-height:1.1;
+                color:#f2f2f2;
               ">
-                YOU'RE IN.
+                ROGUE
               </h1>
 
-              <div style="
-                width:40px;
-                height:1px;
-                background:#555;
-                margin:30px auto;
-              "></div>
-
               <p style="
-                color:#b5b5b5;
-                font-size:16px;
-                line-height:1.8;
-                margin:0 auto 25px;
-                max-width:420px;
-              ">
-                Welcome to ROGUE.
-                <br />
-                You've officially secured your place
-                on the waitlist.
-              </p>
-
-              <p style="
-                color:#888;
-                font-size:14px;
-                line-height:1.7;
-                margin-bottom:40px;
-              ">
-                You'll be among the first to know
-                when the new order begins.
-              </p>
-
-              <div style="
-                border-top:1px solid #222;
-                margin:35px 0 25px;
-              "></div>
-
-              <p style="
-                letter-spacing:3px;
+                margin:15px 0 0;
                 font-size:10px;
+                letter-spacing:5px;
                 color:#777;
-                margin:0;
               ">
                 NEVER MEANT TO FIT IN.
               </p>
 
+            </div>
+
+            <div style="
+              border-top:1px solid #222;
+              margin:0 35px;
+            "></div>
+
+            <div style="
+              padding:45px 30px;
+            ">
+
               <p style="
-                font-size:9px;
-                color:#444;
-                margin-top:30px;
-                letter-spacing:2px;
+                font-size:10px;
+                letter-spacing:4px;
+                color:#777;
+                margin:0 0 18px;
               ">
-                © 2026 ROGUE
+                ACCESS GRANTED
+              </p>
+
+              <h2 style="
+                margin:0;
+                font-size:30px;
+                letter-spacing:3px;
+                color:#f4f4f4;
+              ">
+                YOU'RE IN.
+              </h2>
+
+              <p style="
+                margin:30px auto;
+                max-width:420px;
+                color:#aaa;
+                font-size:15px;
+                line-height:1.8;
+              ">
+                Welcome to ROGUE.
+                <br />
+                You've officially secured your place on the waitlist.
+              </p>
+
+              <div style="
+                border-top:1px solid #222;
+                margin:35px 0;
+              "></div>
+
+              <p style="
+                color:#666;
+                font-size:11px;
+                letter-spacing:2px;
+                line-height:1.8;
+              ">
+                THE FIRST DROP IS COMING.
+                <br />
+                STAY READY.
+              </p>
+
+            </div>
+
+            <div style="
+              border-top:1px solid #222;
+              padding:22px;
+            ">
+
+              <p style="
+                margin:0;
+                color:#555;
+                font-size:9px;
+                letter-spacing:3px;
+              ">
+                ROGUE © 2026
               </p>
 
             </div>
 
           </div>
+
+        </div>
         `,
       });
 
@@ -360,7 +358,6 @@ app.post("/api/subscribe", async (req, res) => {
       success: true,
       message: "Welcome to ROGUE",
     });
-
   } catch (error) {
     console.error(
       "Subscribe Error:",
@@ -369,7 +366,8 @@ app.post("/api/subscribe", async (req, res) => {
 
     return res.status(500).json({
       success: false,
-      message: "Something went wrong. Try again.",
+      message:
+        "Something went wrong. Try again.",
     });
   }
 });
@@ -381,7 +379,7 @@ app.post("/api/subscribe", async (req, res) => {
 
 app.get(
   "/api/subscribers",
-  authenticateAdmin,
+  verifyToken,
   async (req, res) => {
     try {
       const subscribers =
@@ -395,14 +393,10 @@ app.get(
         subscribers,
       });
     } catch (error) {
-      console.error(
-        "Subscribers Fetch Error:",
-        error.message
-      );
-
       res.status(500).json({
         success: false,
-        message: "Failed to fetch subscribers",
+        message:
+          "Failed to fetch subscribers",
       });
     }
   }
@@ -414,8 +408,8 @@ app.get(
 
 const PORT = process.env.PORT || 5002;
 
-app.listen(PORT, "127.0.0.1", () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(
-    `🚀 Server running on http://127.0.0.1:${PORT}`
+    `🚀 Server running on port ${PORT}`
   );
 });
