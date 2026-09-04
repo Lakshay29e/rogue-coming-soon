@@ -24,7 +24,7 @@ app.use(
 app.use(express.json());
 
 /* =========================
-   BREVO EMAIL CONFIG
+   BREVO CONFIG
 ========================= */
 
 const brevo = new BrevoClient({
@@ -205,14 +205,18 @@ app.post("/api/subscribe", async (req, res) => {
       `📩 New ROGUE Subscriber: ${subscriber.email}`
     );
 
-    /* INSTANT RESPONSE */
+    /* =========================
+       INSTANT RESPONSE
+    ========================= */
 
     res.status(201).json({
       success: true,
       message: "Welcome to ROGUE",
     });
 
-    /* EMAIL IN BACKGROUND */
+    /* =========================
+       SEND EMAIL IN BACKGROUND
+    ========================= */
 
     brevo.transactionalEmails
       .sendTransacEmail({
@@ -230,84 +234,139 @@ app.post("/api/subscribe", async (req, res) => {
         subject: "YOU'RE IN. | ROGUE",
 
         htmlContent: `
-          <!DOCTYPE html>
-          <html>
-          <head>
-            <meta charset="UTF-8">
-          </head>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+</head>
 
-          <body style="margin:0;padding:0;background:#050505;font-family:Arial,Helvetica,sans-serif;color:#ffffff;">
+<body style="margin:0;padding:0;background:#050505;font-family:Arial,Helvetica,sans-serif;color:#ffffff;">
 
-            <div style="background:#050505;padding:50px 20px;">
+  <div style="background:#050505;padding:50px 20px;">
 
-              <div style="max-width:600px;margin:auto;background:#090909;border:1px solid #222;text-align:center;">
+    <div style="
+      max-width:600px;
+      margin:auto;
+      background:#090909;
+      border:1px solid #222;
+      text-align:center;
+    ">
 
-                <div style="padding:45px 25px 30px;">
+      <!-- LOGO -->
 
-                  <h1 style="margin:0;font-size:38px;letter-spacing:12px;font-weight:700;color:#f2f2f2;">
-                    ROGUE
-                  </h1>
+      <div style="padding:45px 25px 30px;">
 
-                  <p style="margin:15px 0 0;font-size:10px;letter-spacing:4px;color:#777;">
-                    NEVER MEANT TO FIT IN.
-                  </p>
+        <img
+          src="https://rogueclothing.vercel.app/ROGUE.jpg"
+          alt="ROGUE"
+          style="
+            width:140px;
+            max-width:80%;
+            height:auto;
+            display:block;
+            margin:0 auto 22px;
+          "
+        />
 
-                </div>
+        <p style="
+          margin:0;
+          font-size:10px;
+          letter-spacing:4px;
+          color:#777;
+        ">
+          NEVER MEANT TO FIT IN.
+        </p>
 
-                <div style="border-top:1px solid #222;margin:0 35px;"></div>
+      </div>
 
-                <div style="padding:45px 30px;">
+      <div style="
+        border-top:1px solid #222;
+        margin:0 35px;
+      "></div>
 
-                  <p style="font-size:10px;letter-spacing:4px;color:#777;margin:0 0 18px;">
-                    ACCESS GRANTED
-                  </p>
+      <!-- MAIN CONTENT -->
 
-                  <h2 style="margin:0;font-size:32px;letter-spacing:3px;color:#ffffff;">
-                    YOU'RE IN.
-                  </h2>
+      <div style="padding:45px 30px;">
 
-                  <p style="margin:30px auto;color:#aaa;font-size:15px;line-height:1.8;">
-                    Welcome to ROGUE.
-                    <br><br>
-                    You've officially secured your place on the waitlist.
-                  </p>
+        <p style="
+          font-size:10px;
+          letter-spacing:4px;
+          color:#777;
+          margin:0 0 18px;
+        ">
+          ACCESS GRANTED
+        </p>
 
-                  <div style="border-top:1px solid #222;margin:35px 0;"></div>
+        <h2 style="
+          margin:0;
+          font-size:32px;
+          letter-spacing:3px;
+          color:#ffffff;
+        ">
+          YOU'RE IN.
+        </h2>
 
-                  <p style="color:#666;font-size:11px;letter-spacing:2px;line-height:1.8;">
-                    THE FIRST DROP IS COMING.
-                    <br>
-                    STAY READY.
-                  </p>
+        <p style="
+          margin:30px auto;
+          color:#aaa;
+          font-size:15px;
+          line-height:1.8;
+        ">
+          Welcome to ROGUE.
+          <br><br>
+          You've officially secured your place on the waitlist.
+        </p>
 
-                </div>
+        <div style="
+          border-top:1px solid #222;
+          margin:35px 0;
+        "></div>
 
-                <div style="border-top:1px solid #222;padding:22px;">
+        <p style="
+          color:#666;
+          font-size:11px;
+          letter-spacing:2px;
+          line-height:1.8;
+        ">
+          THE FIRST DROP IS COMING.
+          <br>
+          STAY READY.
+        </p>
 
-                  <p style="margin:0;color:#555;font-size:9px;letter-spacing:3px;">
-                    ROGUE © 2026
-                  </p>
+      </div>
 
-                </div>
+      <!-- FOOTER -->
 
-              </div>
+      <div style="
+        border-top:1px solid #222;
+        padding:22px;
+      ">
 
-            </div>
+        <p style="
+          margin:0;
+          color:#555;
+          font-size:9px;
+          letter-spacing:3px;
+        ">
+          ROGUE © 2026
+        </p>
 
-          </body>
-          </html>
+      </div>
+
+    </div>
+
+  </div>
+
+</body>
+</html>
         `,
       })
-      .then((result) => {
-        console.log(
-          "✅ Confirmation email sent!"
-        );
 
-        console.log(
-          "Brevo Message ID:",
-          result.messageId
-        );
+      .then((result) => {
+        console.log("✅ Confirmation email sent!");
+        console.log("Brevo Message ID:", result.messageId);
       })
+
       .catch((emailError) => {
         console.error(
           "❌ Brevo Email Error:",
@@ -335,7 +394,6 @@ app.post("/api/subscribe", async (req, res) => {
 
 /* =========================
    GET ALL SUBSCRIBERS
-   PROTECTED
 ========================= */
 
 app.get(
