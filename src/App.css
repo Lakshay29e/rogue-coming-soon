@@ -2796,3 +2796,31 @@ footer {
     transform: translateY(160px) !important;
   }
 }
+.hero-section {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Smooth top fade */
+.hero-section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+
+  background: linear-gradient(
+    to bottom,
+    rgba(5, 5, 5, 0.95) 0%,
+    rgba(5, 5, 5, 0.65) 15%,
+    rgba(5, 5, 5, 0.25) 35%,
+    rgba(5, 5, 5, 0) 60%
+  );
+}
+
+/* Content overlay ke upar rahe */
+.hero-section > * {
+  position: relative;
+  z-index: 2;
+}
